@@ -2,6 +2,8 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file
 
 import { defineConfig } from '#q-app';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export default defineConfig((ctx) => {
   return {
@@ -12,6 +14,10 @@ export default defineConfig((ctx) => {
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
     boot: ['i18n'],
+    env: {
+      VITE_API_URL: process.env.VITE_API_URL,
+      VITE_APP_NAME: process.env.VITE_APP_NAME,
+    },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#css
     css: ['app.scss'],
@@ -87,6 +93,43 @@ export default defineConfig((ctx) => {
             },
           },
           { server: false },
+        ],
+        [
+          'unplugin-vue-components/vite',
+          {
+            dirs: ['src/components'], // вказуємо де шукати компоненти
+            extensions: ['vue'],
+            deep: true,
+            dts: 'src/components.d.ts',
+          },
+        ],
+        [
+          'unplugin-auto-import/vite',
+          {
+            imports: [
+              'vue',
+              'vue-router',
+              'pinia',
+              'vue-i18n',
+              'quasar'
+            ],
+            dts: 'src/auto-imports.d.ts', // генеруємо чіткий шлях до .d.ts файлу
+            eslintrc: {
+              enabled: true,
+              filepath: './.eslintrc-auto-import.json', // створюємо конфіг для нашого ESLint 9
+            },
+            dirs: [
+              'src/composables',
+              'src/composables/**',
+              'src/enums',
+              'src/enums/**',
+              'src/stores',
+              'src/assets/img/*',
+              'src/assets/icons/*',
+              'src/assets/icons/countries/*',
+            ],
+            vueTemplate: true,
+          },
         ],
       ],
     },

@@ -19,6 +19,8 @@
     </q-drawer>
 
     <q-page-container>
+            <span>{{ apiUrl }}</span>
+      <span>{{ appName }}</span>
       <router-view />
     </q-page-container>
   </q-layout>
@@ -27,6 +29,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import EssentialLink, { type EssentialLinkProps } from '@/components/EssentialLink.vue';
+
+// Завдяки налаштуванню в src/env.d.ts, TypeScript ідеально підказує та типізує ці поля
+const apiUrl = import.meta.env.VITE_API_URL
+const appName = import.meta.env.VITE_APP_NAME
+console.log(apiUrl, appName)
+// Вбудовані змінні Vite для перевірки режиму
+const mode = import.meta.env.MODE // 'development' або 'production'
+const isProd = import.meta.env.PROD // boolean (true, якщо це build)
+console.log(mode, isProd)
 
 const linksList: EssentialLinkProps[] = [
   {

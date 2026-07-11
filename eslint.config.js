@@ -4,16 +4,14 @@ import pluginVue from 'eslint-plugin-vue';
 import pluginQuasar from '@quasar/app-vite/eslint';
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
 import prettierSkipFormatting from '@vue/eslint-config-prettier/skip-formatting';
-
+// Імпортуємо JSON-файл, який автоматично генерує плагін unplugin-auto-import
+import autoImportConfig from './.eslintrc-auto-import.json' with { type: 'json' };
 export default defineConfigWithVueTs(
   {
     /**
      * Ignore the following files.
      * Please note that pluginQuasar.configs.recommended() already ignores
-     * the "node_modules" folder for you (and all other Quasar project
-     * relevant folders and files).
-     *
-     * ESLint requires "ignores" key to be the only one in this object
+     * the "node_modules" folder for you.
      */
     // ignores: []
   },
@@ -22,18 +20,10 @@ export default defineConfigWithVueTs(
   js.configs.recommended,
 
   /**
-   * https://eslint.vuejs.org
-   *
-   * pluginVue.configs.base
-   *   -> Settings and rules to enable correct ESLint parsing.
-   * pluginVue.configs[ 'flat/essential']
-   *   -> base, plus rules to prevent errors or unintended behavior.
-   * pluginVue.configs["flat/strongly-recommended"]
-   *   -> Above, plus rules to considerably improve code readability and/or dev experience.
-   * pluginVue.configs["flat/recommended"]
-   *   -> Above, plus rules to enforce subjective community defaults to ensure consistency.
+   * Змінено рівень суворості Vue з 'essential' на 'recommended'
+   * для кращого автоматичного сортування та перевірки тегів.
    */
-  pluginVue.configs['flat/essential'],
+  ...pluginVue.configs['flat/recommended'],
 
   {
     files: ['**/*.ts', '**/*.vue'],
@@ -41,7 +31,8 @@ export default defineConfigWithVueTs(
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
     },
   },
-  // https://github.com/vuejs/eslint-config-typescript
+  
+  // Офіційні TypeScript правила
   vueTsConfigs.recommendedTypeChecked,
 
   {
@@ -50,6 +41,9 @@ export default defineConfigWithVueTs(
       sourceType: 'module',
 
       globals: {
+        // Розгортаємо змінні автоімпорту (ref, computed, useCounterStore тощо)
+        // Це каже ESLint: "Ці змінні глобальні, вони існують, не лайся на них"
+        ...autoImportConfig.globals,
         ...globals.browser,
         ...globals.node, // SSR, Electron, config files
         process: 'readonly', // process.env.*
@@ -61,16 +55,39 @@ export default defineConfigWithVueTs(
       },
     },
 
-    // add your custom rules here
+    // --- НАШІ КАСТОМНІ ПРАВИЛА ---
     rules: {
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports' },
+      ],
+      // 1. Дозволяємо 'any', але з попередженням (warn) у консолі / IDE
+      '@typescript-eslint/no-explicit-any': 'warn',
+
+      // 2. Вимикаємо помилку про обов'язковий Reject у промісах (твоє прохання)
       'prefer-promise-reject-errors': 'off',
+
+      // 3. Дозволяємо однослівні назви для сторінок/компонентів (напр. Index.vue)
       'vue/multi-word-component-names': 'off',
 
-      // allow debugger during development only
+      // 4. Debugger та console.log дозволені при розробці, але заборонені у продакшені
       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+      'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+
+      // 5. Невикористані змінні — жорстка помилка (ігноруються лише змінні, що починаються з підкреслення, напр. _idx)
+      '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
+
+      // 6. Автоматичне сортування атрибутів у Vue компонентах
+      'vue/attributes-order': ['error', {
+        'order': [
+          'DEFINITION', 'LIST_RENDERING', 'CONDITIONALS', 'RENDER_MODIFIERS',
+          'GLOBAL', ['UNIQUE', 'SLOT'], 'TWO_WAY_BINDING', 'OTHER_ATTR', 'EVENTS', 'CONTENT'
+        ]
+      }]
     },
   },
 
+  // Специфічні глобальні змінні для PWA Service Worker
   {
     files: ['src-pwa/sw/**/*.ts'],
     languageOptions: {
@@ -80,5 +97,6 @@ export default defineConfigWithVueTs(
     },
   },
 
+  // Пропускаємо правила форматування, які бере на себе Prettier
   prettierSkipFormatting,
 );

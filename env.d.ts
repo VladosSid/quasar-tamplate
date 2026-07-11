@@ -1,15 +1,20 @@
-/**
- * Add types (that are not auto-magically added by Quasar CLI already)
- * for your custom variables to avoid TypeScript errors, like dynamic
- * process.env variables or definitions in dotenv files configured ONLY
- * for the /quasar.config file itself.
- *
- * https://quasar.dev/quasar-cli-vite/handling-import-meta-env#type-inference
- *
- * @example
- * interface ImportMetaEnv {
- *   readonly MY_VAR: string;
- *   readonly MY_OTHER_VAR: string;
- * }
- */
-interface ImportMetaEnv {}
+/* eslint-disable */
+
+declare namespace NodeJS {
+  interface ProcessEnv {
+    NODE_ENV: string;
+    VUE_ROUTER_MODE: 'hash' | 'history' | 'abstract';
+    VUE_ROUTER_BASE: string;
+  }
+}
+
+// --- ДОДАЄМО НАШІ ЗМІННІ СЮДИ ---
+interface ImportMetaEnv {
+  readonly VITE_API_URL: string;
+  readonly VITE_APP_NAME: string;
+  // додавай сюди інші змінні за потреби...
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
