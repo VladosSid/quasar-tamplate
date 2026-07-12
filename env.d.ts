@@ -1,4 +1,5 @@
 /* eslint-disable */
+import 'vue-router';
 
 declare namespace NodeJS {
   interface ProcessEnv {
@@ -17,4 +18,13 @@ interface ImportMetaEnv {
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
+}
+
+declare module 'vue-router' {
+  interface RouteMeta {
+    requiresAuth?: boolean;
+    onlyGuests?: boolean;
+    roles?: string[];
+    title?: string;
+  }
 }

@@ -33,6 +33,41 @@ export default defineRouter((/* { store, ssrContext } */) => {
     history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE),
   });
 
+  // 🛡️ ГЛОБАЛЬНИЙ ЗАХИСТ МАРШРУТІВ (Navigation Guard)
+  Router.beforeEach((to, from, next) => {
+    // Імітуємо отримання стану користувача (сюди ти підключиш свій Pinia стор)
+    // Наприклад: const authStore = useAuthStore();
+    const isAuthenticated = false; // Зміни на true для тесту
+    const userRole = 'user';       // Може бути 'admin', 'user' тощо
+
+    // Зміна тайтлу сторінки (опціонально, беремо з метаданих)
+    if (to.meta.title) {
+      document.title = `${to.meta.title} | Мій Додаток`;
+    }
+
+    // ПЕРЕВІРКА ДЛЯ АВТОРИЗОВАНИХ (РЕДІРЕКТ З ЛОГІНУ) 👈 НАША НОВА ЛОГІКА
+    if (to.meta.onlyGuests && isAuthenticated) {
+      // Якщо користувач ВЖЕ в системі, але намагається зайти на /auth/login
+      return next({ name: '/' }); // Викидаємо його на головну сторінку
+    }
+
+    // Перевірка: чи вимагає сторінка авторизації?
+    if (to.meta.requiresAuth && !isAuthenticated) {
+      // Якщо користувач не авторизований — відправляємо на сторінку логіну
+      return next({ name: '/auth/Login' }); 
+      // Примітка: у vue-router/auto-routes імена маршрутів збігаються з їхніми шляхами
+    }
+
+    // Перевірка: чи є у користувача потрібна роль для цієї сторінки?
+    if (to.meta.roles && !to.meta.roles.includes(userRole)) {
+      // Якщо роль не підходить — перенаправляємо на головну або сторінку 403 (Access Denied)
+      return next({ name: '/' });
+    }
+
+    // Якщо все добре — дозволяємо перехід
+    next();
+  });
+
   // enable HMR for it
   if (import.meta.hot) {
     handleHotUpdate(Router);
