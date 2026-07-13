@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePage({
   meta: {
-    requiresAuth: true, // Прапорець: потрібна авторизація
+    requiresAuth: false, // Прапорець: потрібна авторизація
     onlyGuests: true, // Прапорець: доступно лише для гостей (неавторизованих користувачів)
     title: 'Авторизація'
   }

@@ -37,29 +37,28 @@ export default defineRouter((/* { store, ssrContext } */) => {
   Router.beforeEach((to, from, next) => {
     // Імітуємо отримання стану користувача (сюди ти підключиш свій Pinia стор)
     // Наприклад: const authStore = useAuthStore();
-    const isAuthenticated = false; // Зміни на true для тесту
-    const userRole = 'user';       // Може бути 'admin', 'user' тощо
+    const authStore = useAuthStore();
 
     // Зміна тайтлу сторінки (опціонально, беремо з метаданих)
     if (to.meta.title) {
       document.title = `${to.meta.title} | Мій Додаток`;
     }
 
-    // ПЕРЕВІРКА ДЛЯ АВТОРИЗОВАНИХ (РЕДІРЕКТ З ЛОГІНУ) 👈 НАША НОВА ЛОГІКА
-    if (to.meta.onlyGuests && isAuthenticated) {
-      // Якщо користувач ВЖЕ в системі, але намагається зайти на /auth/login
-      return next({ name: '/' }); // Викидаємо його на головну сторінку
-    }
-
     // Перевірка: чи вимагає сторінка авторизації?
-    if (to.meta.requiresAuth && !isAuthenticated) {
+    if (to.meta.requiresAuth && !authStore.isAuthenticated) {
       // Якщо користувач не авторизований — відправляємо на сторінку логіну
       return next({ name: '/auth/Login' }); 
       // Примітка: у vue-router/auto-routes імена маршрутів збігаються з їхніми шляхами
     }
 
+      // ПЕРЕВІРКА ДЛЯ АВТОРИЗОВАНИХ (РЕДІРЕКТ З ЛОГІНУ)
+    if (to.meta.onlyGuests && authStore.isAuthenticated) {
+      // Якщо користувач ВЖЕ в системі, але намагається зайти на /auth/*
+      return next({ name: '/' }); // Викидаємо його на головну сторінку
+    }
+
     // Перевірка: чи є у користувача потрібна роль для цієї сторінки?
-    if (to.meta.roles && !to.meta.roles.includes(userRole)) {
+    if (to.meta.roles && !to.meta.roles.includes(authStore.userRole)) {
       // Якщо роль не підходить — перенаправляємо на головну або сторінку 403 (Access Denied)
       return next({ name: '/' });
     }

@@ -69,6 +69,7 @@ declare global {
   const triggerRef: typeof import('vue').triggerRef
   const unref: typeof import('vue').unref
   const useAttrs: typeof import('vue').useAttrs
+  const useAuthStore: typeof import('./stores/auth/index').useAuthStore
   const useCounterStore: typeof import('./stores/example-store').useCounterStore
   const useCssModule: typeof import('vue').useCssModule
   const useCssVars: typeof import('vue').useCssVars
@@ -97,6 +98,9 @@ declare global {
   // @ts-ignore
   export type { PiniaCustomProperties } from './stores/index'
   import('./stores/index')
+  // @ts-ignore
+  export type { UserRole, User } from './stores/auth/models'
+  import('./stores/auth/models')
 }
 
 // for vue template auto import
@@ -167,6 +171,7 @@ declare module 'vue' {
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
+    readonly useAuthStore: UnwrapRef<typeof import('./stores/auth/index')['useAuthStore']>
     readonly useCounterStore: UnwrapRef<typeof import('./stores/example-store')['useCounterStore']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>

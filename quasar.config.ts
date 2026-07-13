@@ -124,6 +124,7 @@ export default defineConfig((ctx) => {
               'src/enums',
               'src/enums/**',
               'src/stores',
+              'src/stores/**',
               'src/assets/img/*',
               'src/assets/icons/*',
               'src/assets/icons/countries/*',
