@@ -4,7 +4,7 @@ import type { User } from './models';
 
 export const useAuthStore = defineStore('auth', () => {
   // --- STATE ---
-  const token = ref<string | null>(localStorage.getItem('token'));
+  const token = ref<string | null>(localStorage.getItem('token') || null);
   const user = ref<User | null>(null);
   const isLoading = ref(false);
 

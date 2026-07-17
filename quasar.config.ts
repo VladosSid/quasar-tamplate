@@ -13,7 +13,7 @@ export default defineConfig((ctx) => {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
-    boot: ['i18n'],
+    boot: ['i18n', 'axios'],
     env: {
       VITE_API_URL: process.env.VITE_API_URL,
       VITE_APP_NAME: process.env.VITE_APP_NAME,
